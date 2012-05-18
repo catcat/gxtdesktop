@@ -19,4 +19,6 @@
   <replace-with class="com.sencha.gxt.desktop.client.theme.base.taskbutton.TaskButtonCellDefaultAppearance">
     <when-type-is class="com.sencha.gxt.desktop.client.widget.TaskButtonCell.TaskButtonCellAppearance" />
   </replace-with>
+
+  <set-property name="user.agent" value="gecko1_8"/>
 </module>
