@@ -10,7 +10,7 @@
   <artifactId>desktop</artifactId>
   <packaging>jar</packaging>
   <version>1.0.0</version>
-  <name>GWT Maven Archetype</name>
+  <name>desktop</name>
 
   <properties>
     <!-- Convenience property to set the GWT version -->
