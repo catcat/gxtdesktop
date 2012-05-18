@@ -106,6 +106,7 @@
                     <!-- TODO -->
                     <draftCompile>true</draftCompile>
                     <style>PRETTY</style>
+                    <optimizationLevel>3</optimizationLevel>
 
                 </configuration>
             </plugin>
