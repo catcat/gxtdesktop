@@ -20,6 +20,7 @@ import com.sencha.gxt.desktop.client.widget.StartToolMenuItem;
 import com.sencha.gxt.desktopapp.client.images.DesktopImages;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
+import com.sencha.gxt.widget.core.client.info.Info;
 import com.sencha.gxt.widget.core.client.menu.Item;
 
 /**
@@ -31,6 +32,7 @@ public class DesktopAppViewImpl implements DesktopAppView {
 
   private Desktop desktop;
   private Shortcut fileManagerShortcut;
+  private Shortcut merchantShortcut;
   private StartMainMenuItem fileManagerStartMenuItem;
   private StartToolMenuItem cascadeToolMenuItem;
   private StartToolMenuItem tileToolMenuItem;
@@ -38,6 +40,7 @@ public class DesktopAppViewImpl implements DesktopAppView {
   private StartToolMenuItem logoutToolMenuItem;
   private SelectionHandler<Item> fileManagerStartMenuListener;
   private SelectHandler fileManagerShortcutListener;
+  private SelectHandler merchantShortcutListener;
   private DesktopAppPresenter desktopAppPresenter;
 
   /**
@@ -71,6 +74,7 @@ public class DesktopAppViewImpl implements DesktopAppView {
     if (desktop == null) {
       desktop = new Desktop();
       desktop.addShortcut(getFileManagerShortcut());
+      desktop.addShortcut(getMerchantShortcut());
       desktop.addStartMenuItem(getFileManagerStartMenuItem());
       desktop.setStartMenuHeading(getPresenter().getCurrentUser());
       desktop.setStartMenuIcon(DesktopImages.INSTANCE.user());
@@ -140,6 +144,29 @@ public class DesktopAppViewImpl implements DesktopAppView {
     }
     return fileManagerShortcutListener;
   }
+
+  private Shortcut getMerchantShortcut() {
+      if (merchantShortcut == null) {
+          merchantShortcut = new Shortcut();
+          merchantShortcut.setText("Merchant");
+          merchantShortcut.setIcon(DesktopImages.INSTANCE.folder_shortcut());
+          merchantShortcut.addSelectHandler(getMerchantShortcutListener());
+      }
+      return merchantShortcut;
+  }
+
+    private SelectHandler getMerchantShortcutListener() {
+        if (merchantShortcutListener == null) {
+            merchantShortcutListener = new SelectHandler() {
+                @Override
+                public void onSelect(SelectEvent event) {
+                    Info.display("merch1","merch1");
+                    getDesktopAppPresenter().onOpenMerchant();
+                }
+            };
+        }
+        return merchantShortcutListener;
+    }
 
   private StartMainMenuItem getFileManagerStartMenuItem() {
     if (fileManagerStartMenuItem == null) {

@@ -200,7 +200,7 @@ public interface DesktopAppPresenter {
    * Opens a file manager.
    */
   void onOpenFileManager();
-
+  void onOpenMerchant();
   /**
    * Opens the current user's profile so the user can view or update the
    * settings.

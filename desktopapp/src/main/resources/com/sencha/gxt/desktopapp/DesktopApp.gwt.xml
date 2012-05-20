@@ -9,20 +9,20 @@
 
 -->
 <module rename-to='desktopapp'>
-  <inherits name='com.sencha.gxt.desktop.Desktop' />
-  <inherits name="com.google.gwt.logging.Logging" />
-  <inherits name='com.sencha.gxt.chart.Chart' />
+    <inherits name='com.sencha.gxt.desktop.Desktop'/>
+    <inherits name="com.google.gwt.logging.Logging"/>
+    <inherits name='com.sencha.gxt.chart.Chart'/>
 
-  <set-property name="gxt.logging.enabled" value="false" />
-  <set-property name="gwt.logging.logLevel" value="INFO" />
-  <set-property name="gwt.logging.consoleHandler" value="ENABLED" />
-  <set-property name="gwt.logging.popupHandler" value="DISABLED" />
+    <set-property name="gxt.logging.enabled" value="false"/>
+    <set-property name="gwt.logging.logLevel" value="INFO"/>
+    <set-property name="gwt.logging.consoleHandler" value="ENABLED"/>
+    <set-property name="gwt.logging.popupHandler" value="DISABLED"/>
 
-  <!-- Comment out the following line to disable readable style names -->
-  <!-- <set-configuration-property name='CssResource.style' value='pretty' /> -->
+    <!-- Comment out the following line to disable readable style names -->
+    <!-- <set-configuration-property name='CssResource.style' value='pretty' /> -->
 
-  <entry-point class='com.sencha.gxt.desktopapp.client.DesktopApp' />
-  <set-property name="user.agent" value="gecko1_8"/>
+    <entry-point class='com.sencha.gxt.desktopapp.client.DesktopApp'/>
+    <set-property name="user.agent" value="gecko1_8"/>
 
 
 </module>
