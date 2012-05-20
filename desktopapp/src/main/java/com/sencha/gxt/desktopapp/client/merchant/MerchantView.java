@@ -2,9 +2,21 @@ package com.sencha.gxt.desktopapp.client.merchant;
 
 
 
+import com.google.gwt.cell.client.AbstractCell;
+import com.google.gwt.cell.client.Cell;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.editor.client.Editor;
+import com.google.gwt.editor.client.SimpleBeanEditorDriver;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
+import com.sencha.gxt.core.client.Style;
 import com.sencha.gxt.core.client.util.Margins;
+import com.sencha.gxt.data.client.editor.ListStoreEditor;
+import com.sencha.gxt.data.shared.ListStore;
+import com.sencha.gxt.desktopapp.client.exentity.Merchant;
+import com.sencha.gxt.desktopapp.client.exentity.MerchantGenerator;
+import com.sencha.gxt.desktopapp.client.exentity.MerchantProperties;
 import com.sencha.gxt.desktopapp.client.filemanager.images.Images;
 import com.sencha.gxt.widget.core.client.ContentPanel;
 import com.sencha.gxt.widget.core.client.Window;
@@ -14,13 +26,28 @@ import com.sencha.gxt.widget.core.client.container.Container;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.event.HideEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
+import com.sencha.gxt.widget.core.client.form.*;
+import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
+import com.sencha.gxt.widget.core.client.grid.ColumnModel;
+import com.sencha.gxt.widget.core.client.grid.Grid;
 import com.sencha.gxt.widget.core.client.info.Info;
+import com.sencha.gxt.widget.core.client.selection.SelectionChangedEvent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MerchantView implements HideEvent.HideHandler , IsWidget {
     protected Window window;
     protected MerchantPresenter merchantPresenter;
     protected Integer externalRatio;
     protected VerticalLayoutContainer verticalLayoutContainer;
+
+
+
+    @Editor.Ignore
+    MerchantEditor merchantEditor;
+
+    Grid grid;
 
     public MerchantView(MerchantPresenter merchantPresenter, Integer externalRatio) {
         this.merchantPresenter = merchantPresenter;
@@ -83,10 +110,143 @@ public class MerchantView implements HideEvent.HideHandler , IsWidget {
 
         centerData.setMargins(new Margins(2, 3, 2, 3));
         westData.setMargins(new Margins(2));
+        
+        addWestContent(west);
+        addCenterContent(center);
 
         container.setWestWidget(west, westData);
         container.setCenterWidget(center, centerData);
 
         return container;
+    }
+
+    /*
+    interface ListDriver extends SimpleBeanEditorDriver<StockExchange, GridBindingExample> {
+    }
+    */
+
+    interface MerchantDriver extends SimpleBeanEditorDriver<Merchant, MerchantEditor> {
+    }
+
+    /*
+    private ListDriver driver = GWT.create(ListDriver.class);
+    */
+
+    private MerchantDriver itemDriver = GWT.create(MerchantDriver.class);
+
+
+    protected void addWestContent(Container parent) {
+
+        final MerchantProperties props = GWT.create(MerchantProperties.class);
+
+
+        List<ColumnConfig<Merchant, ?>> columns = new ArrayList<ColumnConfig<Merchant, ?>>();
+        //columns.add(new ColumnConfig<Merchant, Integer>(props.id(), 43, "Id"));
+        columns.add(new ColumnConfig<Merchant, String>(props.name(), 65, "Name"));
+        //columns.add(new ColumnConfig<Merchant, Integer>(props.chargeAmount(), 70, "CA"));
+        ColumnConfig<Merchant, Integer> columnConfigCA =new ColumnConfig<Merchant, Integer>(props.chargeAmount(), 70, "CA");
+        columns.add(columnConfigCA);
+        columnConfigCA.setCell(new AbstractCell<Integer>() {
+            @Override
+            public void render(Context context, Integer value, SafeHtmlBuilder sb) {
+                sb.appendHtmlConstant(value+" "+(value>100?
+                        "<span style=\"color:green\">good</span>":"bad"));
+            }
+        });
+
+
+        ListStore<Merchant> listStore = new ListStore<Merchant>(props.id());
+        listStore.addAll(MerchantGenerator.getMerchants());
+
+        grid = new Grid<Merchant>(
+                listStore,
+                new ColumnModel<Merchant>(columns));
+        grid.getSelectionModel().setSelectionMode(Style.SelectionMode.SINGLE);
+        grid.setBorders(true);
+
+        final ListStoreEditor<Merchant> storeEditor = new ListStoreEditor<Merchant>(grid.getStore());
+
+        grid.getSelectionModel().addSelectionChangedHandler(new SelectionChangedEvent.SelectionChangedHandler<Merchant>() {
+            public void onSelectionChanged(SelectionChangedEvent<Merchant> event) {
+                if (event.getSelection().size() > 0) {
+                    edit(event.getSelection().get(0));
+                } else {
+                    merchantEditor.setSaveEnabled(false);
+                }
+            }
+        });
+
+        parent.add(grid);
+    }
+
+    protected void edit(Merchant item) {
+        merchantEditor.setSaveEnabled(true);
+        itemDriver.edit(item);
+    }
+
+    protected void addCenterContent(Container parent) {
+        merchantEditor = new MerchantEditor();
+        parent.add(merchantEditor);
+        itemDriver.initialize(merchantEditor);
+
+        merchantEditor.getSaveButton().addSelectHandler(new SelectEvent.SelectHandler() {
+            public void onSelect(SelectEvent selectEvent) {
+                saveCurrentMerchant();
+            }
+        });
+
+    }
+
+    protected void saveCurrentMerchant() {
+        Merchant edited = itemDriver.flush();
+        if (!itemDriver.hasErrors()) {
+            merchantEditor.setSaveEnabled(false);
+
+            grid.getStore().update(edited);
+        }
+    }
+}
+
+class MerchantEditor implements IsWidget, Editor<Merchant> {
+    private FormPanel panel;
+    private TextButton save;
+    TextField name;
+    NumberField<Integer> chargeAmount;
+
+    MerchantEditor() {
+        panel = new FormPanel();
+        panel.setLabelWidth(50);
+
+        name = new TextField();
+        chargeAmount = new NumberField<Integer>(new NumberPropertyEditor.IntegerPropertyEditor());
+
+        Container container = new VerticalLayoutContainer();//???
+        panel.setWidget(container);
+
+        container.add(new FieldLabel(name, "Name"));
+        container.add(new FieldLabel(chargeAmount, "Ca"));
+
+        save = new TextButton("Save");
+        save.setEnabled(false);
+        container.add(save);
+
+        panel.setLabelWidth(50);
+    }
+
+    @Override
+    public Widget asWidget() {
+        return panel;
+    }
+
+    public void setSaveEnabled(boolean enabled) {
+        save.setEnabled(enabled);
+        if (!enabled) {
+            name.setValue("");
+            chargeAmount.setValue(null);
+        }
+    }
+
+    public SelectEvent.HasSelectHandlers getSaveButton() {
+        return save;
     }
 }
