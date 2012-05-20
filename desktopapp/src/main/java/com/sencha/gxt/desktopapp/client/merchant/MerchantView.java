@@ -6,8 +6,10 @@ import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.editor.client.Editor;
+import com.google.gwt.editor.client.EditorError;
 import com.google.gwt.editor.client.SimpleBeanEditorDriver;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.core.client.Style;
@@ -27,6 +29,7 @@ import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.event.HideEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.form.*;
+import com.sencha.gxt.widget.core.client.form.validator.RegExValidator;
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 import com.sencha.gxt.widget.core.client.grid.Grid;
@@ -154,7 +157,6 @@ public class MerchantView implements HideEvent.HideHandler , IsWidget {
             }
         });
 
-
         ListStore<Merchant> listStore = new ListStore<Merchant>(props.id());
         listStore.addAll(MerchantGenerator.getMerchants());
 
@@ -177,6 +179,7 @@ public class MerchantView implements HideEvent.HideHandler , IsWidget {
         });
 
         parent.add(grid);
+        
     }
 
     protected void edit(Merchant item) {
@@ -186,7 +189,7 @@ public class MerchantView implements HideEvent.HideHandler , IsWidget {
 
     protected void addCenterContent(Container parent) {
         merchantEditor = new MerchantEditor();
-        parent.add(merchantEditor);
+        
         itemDriver.initialize(merchantEditor);
 
         merchantEditor.getSaveButton().addSelectHandler(new SelectEvent.SelectHandler() {
@@ -194,6 +197,31 @@ public class MerchantView implements HideEvent.HideHandler , IsWidget {
                 saveCurrentMerchant();
             }
         });
+
+        //parent.add(merchantEditor);
+        
+        TextButton addIt = new TextButton("AddIt");
+        addIt.addSelectHandler(new SelectEvent.SelectHandler() {
+            public void onSelect(SelectEvent selectEvent) {
+                Merchant toAdd = new Merchant();
+                toAdd.setId((int)Math.ceil(Math.random()*1000.));
+                toAdd.setName("new"+System.currentTimeMillis());
+                toAdd.setSite("http://" + System.currentTimeMillis() + ".com");
+                toAdd.setChargeAmount((int) Math.ceil(Math.random() * 1000.));
+                grid.getStore().add(toAdd);
+
+                itemDriver.edit(toAdd);
+
+
+
+            }
+        });
+        //parent.add(addIt);
+
+        FlowPanel p = new FlowPanel();
+        p.add(merchantEditor);
+        p.add(addIt);
+        parent.add(p);
 
     }
 
@@ -203,14 +231,18 @@ public class MerchantView implements HideEvent.HideHandler , IsWidget {
             merchantEditor.setSaveEnabled(false);
 
             grid.getStore().update(edited);
+            itemDriver.edit(edited);
         }
     }
 }
 
 class MerchantEditor implements IsWidget, Editor<Merchant> {
+
     private FormPanel panel;
     private TextButton save;
+
     TextField name;
+    TextField site;
     NumberField<Integer> chargeAmount;
 
     MerchantEditor() {
@@ -218,13 +250,21 @@ class MerchantEditor implements IsWidget, Editor<Merchant> {
         panel.setLabelWidth(50);
 
         name = new TextField();
+        site = new TextField();
+        RegExValidator http = new RegExValidator("http://.+\\..+", "Please supply a valid url");
+        site.addValidator(http);
         chargeAmount = new NumberField<Integer>(new NumberPropertyEditor.IntegerPropertyEditor());
+
+        name.setAllowBlank(false);
+        site.setAllowBlank(false);
+        chargeAmount.setAllowBlank(false);
 
         Container container = new VerticalLayoutContainer();//???
         panel.setWidget(container);
 
         container.add(new FieldLabel(name, "Name"));
         container.add(new FieldLabel(chargeAmount, "Ca"));
+        container.add(new FieldLabel(site, "Site"));
 
         save = new TextButton("Save");
         save.setEnabled(false);
