@@ -35,6 +35,7 @@ import com.sencha.gxt.desktopapp.client.event.UpdateFileModelEvent;
 import com.sencha.gxt.desktopapp.client.event.UpdateProfileEvent;
 import com.sencha.gxt.desktopapp.client.filemanager.FileManagerPresenterImpl;
 import com.sencha.gxt.desktopapp.client.interpreter.InterpreterPresenterImpl;
+import com.sencha.gxt.desktopapp.client.merchant.MerchantPresenter;
 import com.sencha.gxt.desktopapp.client.persistence.BackingStore;
 import com.sencha.gxt.desktopapp.client.persistence.FileModel;
 import com.sencha.gxt.desktopapp.client.persistence.FileSystem;
@@ -168,7 +169,11 @@ public class DesktopAppPresenterImpl implements DesktopAppPresenter {
     new FileManagerPresenterImpl(getFileSystem(), getDesktopBus()).go(getDesktopAppView());
   }
 
-  @Override
+    public void onOpenMerchant() {
+     new MerchantPresenter(42).go(getDesktopAppView());
+    }
+
+    @Override
   public void onOpenProfile() {
     getDesktopBus().invokeProfileService();
   }

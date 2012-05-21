@@ -18,6 +18,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.ui.Widget;
+import com.sencha.gxt.core.client.util.Margins;
 import com.sencha.gxt.data.shared.IconProvider;
 import com.sencha.gxt.desktopapp.client.filemanager.images.Images;
 import com.sencha.gxt.desktopapp.client.persistence.FileModel;
@@ -348,6 +349,7 @@ public class FileManagerViewImpl implements FileManagerView, HideHandler {
     }
     return typeConfig;
   }
+
 
   private VerticalLayoutContainer getVerticalLayoutContainer() {
     if (verticalLayoutContainer == null) {

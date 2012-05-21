@@ -7,6 +7,8 @@
  */
 package com.sencha.gxt.desktopapp.client;
 
+import java.util.Iterator;
+
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.Widget;
@@ -16,224 +18,221 @@ import com.sencha.gxt.desktop.client.widget.Shortcut;
 import com.sencha.gxt.desktop.client.widget.StartMainMenuItem;
 import com.sencha.gxt.desktop.client.widget.StartToolMenuItem;
 import com.sencha.gxt.desktopapp.client.images.DesktopImages;
-import com.sencha.gxt.widget.core.client.box.MessageBox;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
 import com.sencha.gxt.widget.core.client.info.Info;
 import com.sencha.gxt.widget.core.client.menu.Item;
 
-import java.util.Iterator;
-
 /**
  * Provides a desktop application view.
- *
+ * 
  * @see DesktopAppView
  */
 public class DesktopAppViewImpl implements DesktopAppView {
 
-    private Desktop desktop;
-    private Shortcut fileManagerShortcut;
-    private Shortcut canaryShortcut;
-    private StartMainMenuItem fileManagerStartMenuItem;
-    private StartToolMenuItem cascadeToolMenuItem;
-    private StartToolMenuItem tileToolMenuItem;
-    private StartToolMenuItem updateProfileToolMenuItem;
-    private StartToolMenuItem logoutToolMenuItem;
-    private SelectionHandler<Item> fileManagerStartMenuListener;
-    private SelectHandler fileManagerShortcutListener;
-    private SelectHandler canaryShortcutListener;
-    private DesktopAppPresenter desktopAppPresenter;
+  private Desktop desktop;
+  private Shortcut fileManagerShortcut;
+  private Shortcut merchantShortcut;
+  private StartMainMenuItem fileManagerStartMenuItem;
+  private StartToolMenuItem cascadeToolMenuItem;
+  private StartToolMenuItem tileToolMenuItem;
+  private StartToolMenuItem updateProfileToolMenuItem;
+  private StartToolMenuItem logoutToolMenuItem;
+  private SelectionHandler<Item> fileManagerStartMenuListener;
+  private SelectHandler fileManagerShortcutListener;
+  private SelectHandler merchantShortcutListener;
+  private DesktopAppPresenter desktopAppPresenter;
 
-    /**
-     * Creates a desktop application view that interacts with the rest of the
-     * application using the specified presenter.
-     *
-     * @param desktopAppPresenter the source of commands and data and the target
-     *                            of user initiated events.
-     */
-    public DesktopAppViewImpl(DesktopAppPresenter desktopAppPresenter) {
-        this.desktopAppPresenter = desktopAppPresenter;
+  /**
+   * Creates a desktop application view that interacts with the rest of the
+   * application using the specified presenter.
+   * 
+   * @param desktopAppPresenter the source of commands and data and the target
+   *          of user initiated events.
+   */
+  public DesktopAppViewImpl(DesktopAppPresenter desktopAppPresenter) {
+    this.desktopAppPresenter = desktopAppPresenter;
+  }
+
+  @Override
+  public void add(Widget widget) {
+    getDesktop().activate(widget);
+  }
+
+  @Override
+  public Widget asWidget() {
+    return getDesktop().asWidget();
+  }
+
+  @Override
+  public void clear() {
+    // TODO: implement
+    throw new UnsupportedOperationException();
+  }
+
+  private Desktop getDesktop() {
+    if (desktop == null) {
+      desktop = new Desktop();
+      desktop.addShortcut(getFileManagerShortcut());
+      desktop.addShortcut(getMerchantShortcut());
+      desktop.addStartMenuItem(getFileManagerStartMenuItem());
+      desktop.setStartMenuHeading(getPresenter().getCurrentUser());
+      desktop.setStartMenuIcon(DesktopImages.INSTANCE.user());
+      desktop.addToolMenuItem(getCascadeToolMenuItem());
+      desktop.addToolMenuItem(getTileToolMenuItem());
+      desktop.addToolSeparator();
+      desktop.addToolMenuItem(getUpdateProfileToolMenuItem());
+      desktop.addToolSeparator();
+      desktop.addToolMenuItem(getLogoutToolMenuItem());
     }
+    return desktop;
+  }
 
-    @Override
-    public void add(Widget widget) {
-        getDesktop().activate(widget);
-    }
+  private DesktopAppPresenter getDesktopAppPresenter() {
+    return desktopAppPresenter;
+  }
 
-    @Override
-    public Widget asWidget() {
-        return getDesktop().asWidget();
-    }
+  @Override
+  public Iterator<Widget> iterator() {
+    // TODO: implement
+    throw new UnsupportedOperationException();
+  }
 
-    @Override
-    public void clear() {
-        // TODO: implement
-        throw new UnsupportedOperationException();
-    }
+  @Override
+  public boolean remove(Widget w) {
+    // TODO: implement
+    throw new UnsupportedOperationException();
+  }
 
-    private Desktop getDesktop() {
-        if (desktop == null) {
-            desktop = new Desktop();
-            desktop.addShortcut(getFileManagerShortcut());
-            desktop.addShortcut(getCanaryShortcut());
-            desktop.addStartMenuItem(getFileManagerStartMenuItem());
-            desktop.setStartMenuHeading(getPresenter().getCurrentUser());
-            desktop.setStartMenuIcon(DesktopImages.INSTANCE.user());
-            desktop.addToolMenuItem(getCascadeToolMenuItem());
-            desktop.addToolMenuItem(getTileToolMenuItem());
-            desktop.addToolSeparator();
-            desktop.addToolMenuItem(getUpdateProfileToolMenuItem());
-            desktop.addToolSeparator();
-            desktop.addToolMenuItem(getLogoutToolMenuItem());
+  @Override
+  public void setDesktopLayoutType(DesktopLayoutType desktopLayoutType) {
+    getDesktop().setDesktopLayoutType(desktopLayoutType);
+  }
+
+  private StartToolMenuItem getCascadeToolMenuItem() {
+    if (cascadeToolMenuItem == null) {
+      cascadeToolMenuItem = new StartToolMenuItem("Cascade");
+      cascadeToolMenuItem.setIcon(DesktopImages.INSTANCE.application_cascade());
+      cascadeToolMenuItem.addSelectionHandler(new SelectionHandler<Item>() {
+        @Override
+        public void onSelection(SelectionEvent<Item> event) {
+          getDesktop().layout(DesktopLayoutType.CASCADE);
         }
-        return desktop;
+      });
     }
+    return cascadeToolMenuItem;
+  }
 
-    private DesktopAppPresenter getDesktopAppPresenter() {
-        return desktopAppPresenter;
+  private Shortcut getFileManagerShortcut() {
+    if (fileManagerShortcut == null) {
+      fileManagerShortcut = new Shortcut();
+      fileManagerShortcut.setText("File Manager");
+      fileManagerShortcut.setIcon(DesktopImages.INSTANCE.folder_shortcut());
+      fileManagerShortcut.addSelectHandler(getFileManagerShortcutListener());
     }
+    return fileManagerShortcut;
+  }
 
-    @Override
-    public Iterator<Widget> iterator() {
-        // TODO: implement
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean remove(Widget w) {
-        // TODO: implement
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setDesktopLayoutType(DesktopLayoutType desktopLayoutType) {
-        getDesktop().setDesktopLayoutType(desktopLayoutType);
-    }
-
-    private StartToolMenuItem getCascadeToolMenuItem() {
-        if (cascadeToolMenuItem == null) {
-            cascadeToolMenuItem = new StartToolMenuItem("Cascade");
-            cascadeToolMenuItem.setIcon(DesktopImages.INSTANCE.application_cascade());
-            cascadeToolMenuItem.addSelectionHandler(new SelectionHandler<Item>() {
-                @Override
-                public void onSelection(SelectionEvent<Item> event) {
-                    getDesktop().layout(DesktopLayoutType.CASCADE);
-                }
-            });
+  private SelectHandler getFileManagerShortcutListener() {
+    if (fileManagerShortcutListener == null) {
+      fileManagerShortcutListener = new SelectHandler() {
+        @Override
+        public void onSelect(SelectEvent event) {
+          getDesktopAppPresenter().onOpenFileManager();
         }
-        return cascadeToolMenuItem;
+      };
     }
+    return fileManagerShortcutListener;
+  }
 
-    private Shortcut getCanaryShortcut() {
-        if (canaryShortcut == null) {
-            canaryShortcut = new Shortcut();
-            canaryShortcut.setText("Canary");
-            canaryShortcut.setIcon(DesktopImages.INSTANCE.folder_shortcut());
-            canaryShortcut.addSelectHandler(getCanaryShortcutListener());
-        }
-        return canaryShortcut;
-    }
+  private Shortcut getMerchantShortcut() {
+      if (merchantShortcut == null) {
+          merchantShortcut = new Shortcut();
+          merchantShortcut.setText("Merchant");
+          merchantShortcut.setIcon(DesktopImages.INSTANCE.folder_shortcut());
+          merchantShortcut.addSelectHandler(getMerchantShortcutListener());
+      }
+      return merchantShortcut;
+  }
 
-    private SelectHandler getCanaryShortcutListener() {
-        if (canaryShortcutListener == null) {
-            canaryShortcutListener = new SelectHandler() {
+    private SelectHandler getMerchantShortcutListener() {
+        if (merchantShortcutListener == null) {
+            merchantShortcutListener = new SelectHandler() {
                 @Override
                 public void onSelect(SelectEvent event) {
-                    Info.display("Bingo", "canary");
+                    Info.display("merch1","merch1");
+                    getDesktopAppPresenter().onOpenMerchant();
                 }
             };
         }
-        return canaryShortcutListener;
+        return merchantShortcutListener;
     }
 
-    private Shortcut getFileManagerShortcut() {
-        if (fileManagerShortcut == null) {
-            fileManagerShortcut = new Shortcut();
-            fileManagerShortcut.setText("File Manager");
-            fileManagerShortcut.setIcon(DesktopImages.INSTANCE.folder_shortcut());
-            fileManagerShortcut.addSelectHandler(getFileManagerShortcutListener());
+  private StartMainMenuItem getFileManagerStartMenuItem() {
+    if (fileManagerStartMenuItem == null) {
+      fileManagerStartMenuItem = new StartMainMenuItem("File Manager");
+      fileManagerStartMenuItem.setIcon(DesktopImages.INSTANCE.folder());
+      fileManagerStartMenuItem.addSelectionHandler(getFileManagerStartMenuListener());
+    }
+    return fileManagerStartMenuItem;
+  }
+
+  private SelectionHandler<Item> getFileManagerStartMenuListener() {
+    if (fileManagerStartMenuListener == null) {
+      fileManagerStartMenuListener = new SelectionHandler<Item>() {
+        @Override
+        public void onSelection(SelectionEvent<Item> event) {
+          getDesktopAppPresenter().onOpenFileManager();
         }
-        return fileManagerShortcut;
+      };
     }
+    return fileManagerStartMenuListener;
+  }
 
-
-    private SelectHandler getFileManagerShortcutListener() {
-        if (fileManagerShortcutListener == null) {
-            fileManagerShortcutListener = new SelectHandler() {
-                @Override
-                public void onSelect(SelectEvent event) {
-                    getDesktopAppPresenter().onOpenFileManager();
-                }
-            };
+  private StartToolMenuItem getLogoutToolMenuItem() {
+    if (logoutToolMenuItem == null) {
+      logoutToolMenuItem = new StartToolMenuItem("Logout");
+      logoutToolMenuItem.setIcon(DesktopImages.INSTANCE.door_out());
+      logoutToolMenuItem.addSelectionHandler(new SelectionHandler<Item>() {
+        @Override
+        public void onSelection(SelectionEvent<Item> event) {
+          getPresenter().onLogout();
         }
-        return fileManagerShortcutListener;
+      });
     }
+    return logoutToolMenuItem;
+  }
 
-    private StartMainMenuItem getFileManagerStartMenuItem() {
-        if (fileManagerStartMenuItem == null) {
-            fileManagerStartMenuItem = new StartMainMenuItem("File Manager");
-            fileManagerStartMenuItem.setIcon(DesktopImages.INSTANCE.folder());
-            fileManagerStartMenuItem.addSelectionHandler(getFileManagerStartMenuListener());
+  private DesktopAppPresenter getPresenter() {
+    return desktopAppPresenter;
+  }
+
+  private StartToolMenuItem getTileToolMenuItem() {
+    if (tileToolMenuItem == null) {
+      tileToolMenuItem = new StartToolMenuItem("Tile");
+      tileToolMenuItem.setIcon(DesktopImages.INSTANCE.application_tile_horizontal());
+      tileToolMenuItem.addSelectionHandler(new SelectionHandler<Item>() {
+        @Override
+        public void onSelection(SelectionEvent<Item> event) {
+          getDesktop().layout(DesktopLayoutType.TILE);
         }
-        return fileManagerStartMenuItem;
+      });
     }
+    return tileToolMenuItem;
+  }
 
-    private SelectionHandler<Item> getFileManagerStartMenuListener() {
-        if (fileManagerStartMenuListener == null) {
-            fileManagerStartMenuListener = new SelectionHandler<Item>() {
-                @Override
-                public void onSelection(SelectionEvent<Item> event) {
-                    getDesktopAppPresenter().onOpenFileManager();
-                }
-            };
+  private StartToolMenuItem getUpdateProfileToolMenuItem() {
+    if (updateProfileToolMenuItem == null) {
+      updateProfileToolMenuItem = new StartToolMenuItem("Settings");
+      updateProfileToolMenuItem.setIcon(DesktopImages.INSTANCE.user_edit());
+      updateProfileToolMenuItem.addSelectionHandler(new SelectionHandler<Item>() {
+        @Override
+        public void onSelection(SelectionEvent<Item> event) {
+          getDesktopAppPresenter().onOpenProfile();
         }
-        return fileManagerStartMenuListener;
+      });
     }
-
-    private StartToolMenuItem getLogoutToolMenuItem() {
-        if (logoutToolMenuItem == null) {
-            logoutToolMenuItem = new StartToolMenuItem("Logout");
-            logoutToolMenuItem.setIcon(DesktopImages.INSTANCE.door_out());
-            logoutToolMenuItem.addSelectionHandler(new SelectionHandler<Item>() {
-                @Override
-                public void onSelection(SelectionEvent<Item> event) {
-                    getPresenter().onLogout();
-                }
-            });
-        }
-        return logoutToolMenuItem;
-    }
-
-    private DesktopAppPresenter getPresenter() {
-        return desktopAppPresenter;
-    }
-
-    private StartToolMenuItem getTileToolMenuItem() {
-        if (tileToolMenuItem == null) {
-            tileToolMenuItem = new StartToolMenuItem("Tile");
-            tileToolMenuItem.setIcon(DesktopImages.INSTANCE.application_tile_horizontal());
-            tileToolMenuItem.addSelectionHandler(new SelectionHandler<Item>() {
-                @Override
-                public void onSelection(SelectionEvent<Item> event) {
-                    getDesktop().layout(DesktopLayoutType.TILE);
-                }
-            });
-        }
-        return tileToolMenuItem;
-    }
-
-    private StartToolMenuItem getUpdateProfileToolMenuItem() {
-        if (updateProfileToolMenuItem == null) {
-            updateProfileToolMenuItem = new StartToolMenuItem("Settings");
-            updateProfileToolMenuItem.setIcon(DesktopImages.INSTANCE.user_edit());
-            updateProfileToolMenuItem.addSelectionHandler(new SelectionHandler<Item>() {
-                @Override
-                public void onSelection(SelectionEvent<Item> event) {
-                    getDesktopAppPresenter().onOpenProfile();
-                }
-            });
-        }
-        return updateProfileToolMenuItem;
-    }
+    return updateProfileToolMenuItem;
+  }
 
 }
